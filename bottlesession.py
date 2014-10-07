@@ -99,6 +99,23 @@ class BaseSession(object):
         return data
 
 
+class MemorySession(BaseSession):
+    '''Class which stores session information in the server memory.
+    '''
+    def __init__(self, *args, **kwargs):
+        super(MemorySession, self).__init__(*args, **kwargs)
+        self.sessions = dict()
+
+    def load(self, sessionid):
+        if sessionid not in self.sessions:
+            return None
+        return self.sessions[sessionid]
+
+    def save(self, data):
+        sessionid = data['sessionid']
+        self.sessions[sessionid] = data
+
+
 class PickleSession(BaseSession):
     '''Class which stores session information in the file-system.
 
