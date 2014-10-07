@@ -41,7 +41,11 @@ def authenticator(session_manager, login_url='/auth/login', login_scheme=''):
                     if login_scheme:
                         parts = bottle.request.urlparts
                         prefix = login_scheme + '://' + parts.netloc
-                        request = prefix + parts.path
+                        # avoid redirect to login_url after succesful login
+                        if parts.path == login_url:
+                            request = prefix + '/'
+                        else:
+                            request = prefix + parts.path
                         login_redir_url = prefix + login_url
                     bottle.response.set_cookie(
                         'validuserloginredirect',
