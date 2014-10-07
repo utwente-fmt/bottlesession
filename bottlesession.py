@@ -12,7 +12,7 @@ import bottle
 import time
 
 
-def authenticator(session_manager, login_url='/auth/login'):
+def authenticator(session_manager, login_url='/auth/login', login_scheme=''):
     '''Create an authenticator decorator.
 
     :param session_manager: A session manager class to be used for storing
@@ -20,6 +20,10 @@ def authenticator(session_manager, login_url='/auth/login'):
             :class:`BaseSession`.
     :param login_url: The URL to redirect to if a login is required.
             (default: ``'/auth/login'``).
+    :param login_scheme: The URL scheme to use for `login_url`.
+           When `login_scheme` is set, we assume that `login_url` contains
+           only a URL path.
+            (default: ``''``).
     '''
     def valid_user(login_url=login_url):
         def decorator(handler, *a, **ka):
@@ -32,11 +36,18 @@ def authenticator(session_manager, login_url='/auth/login'):
                     if not data['valid']:
                         raise KeyError('Invalid login')
                 except (KeyError, TypeError):
+                    request = bottle.request.fullpath
+                    login_redir_url = login_url
+                    if login_scheme:
+                        parts = bottle.request.urlparts
+                        prefix = login_scheme + '://' + parts.netloc
+                        request = prefix + parts.path
+                        login_redir_url = prefix + login_url
                     bottle.response.set_cookie(
                         'validuserloginredirect',
-                        bottle.request.fullpath, path='/',
+                        request, path='/',
                         expires=(int(time.time()) + 3600))
-                    bottle.redirect(login_url)
+                    bottle.redirect(login_redir_url)
 
                 #  set environment
                 if data.get('name'):
