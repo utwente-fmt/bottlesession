@@ -41,6 +41,8 @@ def authenticator(session_manager, login_url='/auth/login'):
                 #  set environment
                 if data.get('name'):
                     bottle.request.environ['REMOTE_USER'] = data['name']
+                else:
+                    bottle.request.environ['REMOTE_USER'] = None
 
                 return handler(*a, **ka)
             return check_auth
