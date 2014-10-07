@@ -116,6 +116,26 @@ class MemorySession(BaseSession):
         self.sessions[sessionid] = data
 
 
+class PreconfiguredSession(BaseSession):
+    '''Class which always returns same session data, given in initializer.
+
+    :param session_data: the session data to return, always.
+            (default: None)
+    '''
+    def __init__(self, session_data=None, *args, **kwargs):
+        super(PreconfiguredSession, self).__init__(*args, **kwargs)
+        self.session_data = session_data
+
+    def get_session(self):
+        return self.session_data
+
+    def load(self, sessionid):
+        return self.session_data
+
+    def save(self, data):
+        self.session_data = data
+
+
 class PickleSession(BaseSession):
     '''Class which stores session information in the file-system.
 
